@@ -1,12 +1,12 @@
 buildscript {
-   repositories {
-      mavenCentral()
-      mavenLocal()
-   }
+  repositories {
+    mavenCentral()
+    mavenLocal()
+  }
 
-   dependencies {
-      classpath 'com.darylteo.vertx:vertx-gradle-plugin:0.1.0-SNAPSHOT'
-   }
+  dependencies {
+    classpath 'com.darylteo.vertx:vertx-gradle-plugin:0.1.0-SNAPSHOT'
+  }
 }
 
 apply plugin: 'java'
@@ -15,12 +15,12 @@ apply plugin: 'vertx'
 sourceCompatibility = '1.8'
 
 vertx {
-   platform {
-      version '2.1RC1'
-   }
-   
-   config {
-     main 'Main'
-     autoRedeploy true
-   }
+  platform {
+    version '2.1RC1'
+  }
+
+  config {
+    main 'Main'
+    autoRedeploy true
+  }
 }

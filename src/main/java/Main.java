@@ -11,9 +11,9 @@ public class Main extends Verticle {
   @Override
   public void start() {
     NetClient client = vertx.createNetClient();
-    
+
     client.connect(8000, "irc.freenode.org", result -> {
-      if(result.succeeded()) {
+      if (result.succeeded()) {
         System.out.println("Succeeded in connecting to server");
 
         IRCClient server = new IRCClient(result.result());
@@ -26,7 +26,7 @@ public class Main extends Verticle {
 
   @Override
   public void stop() {
-    if(this.client != null) {
+    if (this.client != null) {
       this.client.quit("Shutting Down");
     }
 

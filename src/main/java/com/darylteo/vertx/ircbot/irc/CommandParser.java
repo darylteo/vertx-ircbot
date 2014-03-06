@@ -8,7 +8,7 @@ import org.vertx.java.core.buffer.Buffer;
 public class CommandParser {
   private BufferTokenizer tokenizer = new BufferTokenizer();
 
-  public CommandParser(){
+  public CommandParser() {
   }
 
   public void append(Buffer buffer) {
@@ -19,10 +19,13 @@ public class CommandParser {
     return this.tokenizer.hasNext();
   }
 
-  public String next(){
+  public Command next() {
     String line = tokenizer.next();
 
-    // TODO;
-    return line;
+    if (line.startsWith("PING")) {
+      return new Command(Commands.PING, "", line);
+    }
+
+    return new Command(Commands.UNKNOWN, "", line);
   }
 }

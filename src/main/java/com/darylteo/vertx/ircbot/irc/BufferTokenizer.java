@@ -2,10 +2,8 @@ package com.darylteo.vertx.ircbot.irc;
 
 import org.vertx.java.core.buffer.Buffer;
 
-import java.io.ByteArrayInputStream;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Scanner;
 
 /**
  * Created by dteo on 6/03/2014.

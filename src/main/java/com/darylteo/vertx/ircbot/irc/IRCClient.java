@@ -17,7 +17,7 @@ public class IRCClient {
     socket.dataHandler(buffer -> {
       this.parser.append(buffer);
 
-      while(this.parser.hasNext()) {
+      while (this.parser.hasNext()) {
         System.out.println(this.parser.next());
       }
     });
