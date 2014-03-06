@@ -1,6 +1,4 @@
-import org.vertx.java.core.Future;
 import org.vertx.java.core.net.NetClient;
-import org.vertx.java.core.net.NetSocket;
 import org.vertx.java.platform.Verticle;
 
 /**
@@ -15,12 +13,8 @@ public class Main extends Verticle {
       if(result.succeeded()) {
         System.out.println("Succeeded in connecting to server");
 
-        NetSocket socket = result.result();
-
-        socket.dataHandler(buffer -> {
-          System.out.println(buffer);z
-        });
-
+        IRCClient server = new IRCClient(result.result());
+        server.ident("vertxbot", "Daryl Teo");
       } else {
         System.out.println("Connection to irc server failed");
       }
