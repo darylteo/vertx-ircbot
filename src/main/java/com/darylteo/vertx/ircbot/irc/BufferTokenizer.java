@@ -2,6 +2,7 @@ package com.darylteo.vertx.ircbot.irc;
 
 import org.vertx.java.core.buffer.Buffer;
 
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -17,8 +18,10 @@ public class BufferTokenizer {
       byte b = buffer.getByte(i);
 
       if (b == '\n') {
-        this.commands.add(this.currentBuffer.toString());
+        this.commands.add(new String(this.currentBuffer.getBytes(), StandardCharsets.UTF_8));
         this.currentBuffer = new Buffer();
+      } else if (b == '\r') {
+        // skip
       } else {
         this.currentBuffer.appendByte(b);
       }

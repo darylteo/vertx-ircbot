@@ -10,9 +10,9 @@ public class Command {
     return this.line;
   }
 
-  private Commands command;
+  private String command;
 
-  public Commands command() {
+  public String command() {
     return this.command;
   }
 
@@ -22,7 +22,7 @@ public class Command {
     return this.parameters;
   }
 
-  public Command(Commands command, String parameters, String line) {
+  public Command(String command, String parameters, String line) {
     this.command = command;
     this.parameters = parameters;
     this.line = line;
