@@ -1,8 +1,6 @@
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.net.NetSocket;
+package com.darylteo.vertx.ircbot.irc;
 
-import java.util.Arrays;
-import java.util.List;
+import org.vertx.java.core.net.NetSocket;
 
 /**
  * Created by dteo on 6/03/2014.
@@ -11,16 +9,16 @@ public class IRCClient {
   private NetSocket socket;
 
   private CommandHandler handler;
-  private CommandBuffer commands = new CommandBuffer();
+  private CommandParser parser = new CommandParser();
 
   public IRCClient(NetSocket socket) {
     this.socket = socket;
 
     socket.dataHandler(buffer -> {
-      this.commands.append(buffer);
+      this.parser.append(buffer);
 
-      while(this.commands.hasNext()) {
-        System.out.println(this.commands.next());
+      while(this.parser.hasNext()) {
+        System.out.println(this.parser.next());
       }
     });
   }

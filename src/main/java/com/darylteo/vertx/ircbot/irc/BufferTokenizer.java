@@ -1,3 +1,5 @@
+package com.darylteo.vertx.ircbot.irc;
+
 import org.vertx.java.core.buffer.Buffer;
 
 import java.io.ByteArrayInputStream;
@@ -8,7 +10,7 @@ import java.util.Scanner;
 /**
  * Created by dteo on 6/03/2014.
  */
-public class CommandBuffer {
+public class BufferTokenizer {
   private Buffer currentBuffer = new Buffer();
   private Queue<String> commands = new LinkedList<>();
 

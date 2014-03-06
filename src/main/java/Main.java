@@ -1,3 +1,4 @@
+import com.darylteo.vertx.ircbot.irc.IRCClient;
 import org.vertx.java.core.net.NetClient;
 import org.vertx.java.platform.Verticle;
 

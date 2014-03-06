@@ -1,3 +1,5 @@
+package com.darylteo.vertx.ircbot.irc;
+
 /**
  * Created by dteo on 6/03/2014.
  */
