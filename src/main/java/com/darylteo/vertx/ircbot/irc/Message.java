@@ -3,7 +3,7 @@ package com.darylteo.vertx.ircbot.irc;
 /**
  * Created by dteo on 7/03/2014.
  */
-public class Command {
+public class Message {
   private String line;
 
   public String line() {
@@ -22,7 +22,7 @@ public class Command {
     return this.parameters;
   }
 
-  public Command(String command, String parameters, String line) {
+  public Message(String command, String parameters, String line) {
     this.command = command;
     this.parameters = parameters;
     this.line = line;

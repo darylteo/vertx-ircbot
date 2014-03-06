@@ -8,8 +8,8 @@ import org.vertx.java.core.net.NetSocket;
 public class IRCClient {
   private NetSocket socket;
 
-  private CommandHandler handler;
-  private CommandParser parser = new CommandParser();
+  private MessageHandler handler;
+  private MessageParser parser = new MessageParser();
 
   public IRCClient(NetSocket socket) {
     this.socket = socket;
@@ -32,7 +32,7 @@ public class IRCClient {
     send("QUIT " + reason);
   }
 
-  public void commandHandler(CommandHandler handler) {
+  public void commandHandler(MessageHandler handler) {
     this.handler = handler;
   }
 

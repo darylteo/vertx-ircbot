@@ -8,14 +8,12 @@ import java.util.regex.Pattern;
 /**
  * Created by dteo on 6/03/2014.
  */
-public class CommandParser {
+public class MessageParser {
   private BufferTokenizer tokenizer = new BufferTokenizer();
 
   private static Pattern MESSAGE_PATTERN = Pattern.compile("^(:(?<prefix>[^\\s]+) )?(?<command>[^\\s]+) (?<parameters>.+)$");
 
-  public CommandParser() {
-    System.out.println("PInG: " + MESSAGE_PATTERN.matcher(":barjavel.freenode.net 372 vertxbot :-").matches());
-
+  public MessageParser() {
   }
 
   public void append(Buffer buffer) {
@@ -26,16 +24,14 @@ public class CommandParser {
     return this.tokenizer.hasNext();
   }
 
-  public Command next() {
+  public Message next() {
     String line = tokenizer.next();
 
     Matcher matcher = MESSAGE_PATTERN.matcher(line);
-    System.out.println(line);
-    System.out.println(matcher.matches());
     if (matcher.matches()) {
-      return new Command(matcher.group("command"), matcher.group("parameters"), line);
+      return new Message(matcher.group("command"), matcher.group("parameters"), line);
     }
 
-    return new Command("Unknown", "", line);
+    return new Message("Unknown", "", line);
   }
 }
