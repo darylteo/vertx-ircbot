@@ -3,7 +3,60 @@ package com.darylteo.vertx.ircbot.irc;
 /**
  * Created by dteo on 7/03/2014.
  */
-public enum CommandTypes {
+public enum CommandType {
+
+  // misc
+  _UNKNOWN,
+
+  // basic command types
+  ADMIN,
+  AWAY,
+  CONNECT,
+  DIE,
+  ERROR,
+  INFO,
+  INVITE,
+  ISON,
+  JOIN,
+  KICK,
+  KILL,
+  LINKS,
+  LIST,
+  LUSERS,
+  MODE,
+  MOTD,
+  NAMES,
+  NICK,
+  NOTICE,
+  OPER,
+  PART,
+  PASS,
+  PING,
+  PONG,
+  PRIVMSG,
+  QUIT,
+  REHASH,
+  RESTART,
+  SERVICE,
+  SERVLIST,
+  SQUERY,
+  SQUIT,
+  STATS,
+  SUMMON,
+  TIME,
+  TOPIC,
+  TRACE,
+  USER,
+  USERHOST,
+  USERS,
+  VERSION,
+  WALLOPS,
+  WHO,
+  WHOIS,
+  WHOWAS,
+
+  // numeric command types
+
   RPL_WELCOME, // 001
   RPL_YOURHOST, // 002
   RPL_CREATED, // 003
@@ -140,5 +193,5 @@ public enum CommandTypes {
   ERR_UNIQOPPRIVSNEEDED, // 485
   ERR_NOOPERHOST, // 491
   ERR_UMODEUNKNOWNFLAG, // 501
-  ERR_USERSDONTMATCH // 502
+  ERR_USERSDONTMATCH, // 502
 }

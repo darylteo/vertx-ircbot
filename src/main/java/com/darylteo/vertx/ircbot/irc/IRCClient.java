@@ -3,6 +3,7 @@ package com.darylteo.vertx.ircbot.irc;
 import com.darylteo.vertx.ircbot.irc.messages.Message;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
+import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.net.NetClient;
 import org.vertx.java.core.net.NetSocket;
 
@@ -43,21 +44,17 @@ public class IRCClient {
   private void init(NetSocket socket) {
     this.socket = socket;
 
+    // Respond to Pings
     this.bind("PING", message ->
       this.send("PONG", message.parameters())
     );
 
-    socket.dataHandler(buffer -> {
-      this.parser.append(buffer);
-
-      while (this.parser.hasNext()) {
-        this.handle(this.parser.next());
-      }
-    });
+    // pass other messages to channels/subscribers
+    socket.dataHandler(buffer -> this.handle(buffer));
   }
 
   //
-  // CommandTypes
+  // CommandType
   public void ident(String nick, String real) {
     this.send("NICK", nick);
     this.send("USER", nick, "0", "*", ":" + real);
@@ -81,6 +78,14 @@ public class IRCClient {
   // Handler Methods
   public void bind(String command, MessageHandler handler) {
     this.handlers.put(command.toUpperCase(), handler);
+  }
+
+  private void handle(Buffer buffer) {
+    this.parser.append(buffer);
+
+    while (this.parser.hasNext()) {
+      this.handle(this.parser.next());
+    }
   }
 
   private void handle(Message message) {
