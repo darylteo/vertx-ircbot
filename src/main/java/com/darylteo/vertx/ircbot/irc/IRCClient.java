@@ -1,6 +1,9 @@
 package com.darylteo.vertx.ircbot.irc;
 
 import com.darylteo.vertx.ircbot.irc.messages.Message;
+import org.vertx.java.core.Handler;
+import org.vertx.java.core.Vertx;
+import org.vertx.java.core.net.NetClient;
 import org.vertx.java.core.net.NetSocket;
 
 import java.util.HashMap;
@@ -16,12 +19,33 @@ public class IRCClient {
   private Map<String, MessageHandler> handlers = new HashMap<>();
   private Map<String, Channel> channels = new HashMap<>();
 
-  public IRCClient(NetSocket socket) {
+  //
+  // Constructors
+  public IRCClient(Vertx vertx, Handler<IRCClient> handler) {
+    NetClient client = vertx.createNetClient();
+
+    client.connect(8000, "irc.freenode.org", result -> {
+      if (result.succeeded()) {
+        System.out.println("Succeeded in connecting to server");
+
+        this.init(result.result());
+        this.ident("vertxbot", "Daryl Teo");
+
+        handler.handle(this);
+      } else {
+        System.out.println("Connection to irc server failed");
+      }
+    });
+  }
+
+  //
+  // Setup
+  private void init(NetSocket socket) {
     this.socket = socket;
 
-    this.bind("PING", message -> {
-      this.send("PONG", message.parameters());
-    });
+    this.bind("PING", message ->
+      this.send("PONG", message.parameters())
+    );
 
     socket.dataHandler(buffer -> {
       this.parser.append(buffer);

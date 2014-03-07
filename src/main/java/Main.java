@@ -1,6 +1,4 @@
-import com.darylteo.vertx.ircbot.irc.Channel;
 import com.darylteo.vertx.ircbot.irc.IRCClient;
-import org.vertx.java.core.net.NetClient;
 import org.vertx.java.platform.Verticle;
 
 /**
@@ -11,21 +9,7 @@ public class Main extends Verticle {
 
   @Override
   public void start() {
-    NetClient client = vertx.createNetClient();
-
-    client.connect(8000, "irc.freenode.org", result -> {
-      if (result.succeeded()) {
-        System.out.println("Succeeded in connecting to server");
-
-        IRCClient server = new IRCClient(result.result());
-
-        server.ident("vertxbot", "Daryl Teo");
-
-        Channel channel = server.join("vertxbot");
-      } else {
-        System.out.println("Connection to irc server failed");
-      }
-    });
+    IRCClient client = new IRCClient(this.vertx, result -> this.joinChannels(result));
   }
 
   @Override
@@ -36,4 +20,9 @@ public class Main extends Verticle {
 
     super.stop();
   }
+
+  private void joinChannels(IRCClient client) {
+    client.join("#vertxbot");
+  }
+
 }
