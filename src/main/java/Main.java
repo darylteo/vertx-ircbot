@@ -1,3 +1,4 @@
+import com.darylteo.vertx.ircbot.irc.Channel;
 import com.darylteo.vertx.ircbot.irc.IRCClient;
 import org.vertx.java.core.net.NetClient;
 import org.vertx.java.platform.Verticle;
@@ -20,7 +21,7 @@ public class Main extends Verticle {
 
         server.ident("vertxbot", "Daryl Teo");
 
-        server.join("vertxbot");
+        Channel channel = server.join("vertxbot");
       } else {
         System.out.println("Connection to irc server failed");
       }
@@ -34,10 +35,5 @@ public class Main extends Verticle {
     }
 
     super.stop();
-  }
-
-  // register all responses to commands
-  private void hook(IRCClient client) {
-
   }
 }

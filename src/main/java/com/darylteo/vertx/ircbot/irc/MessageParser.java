@@ -1,8 +1,8 @@
 package com.darylteo.vertx.ircbot.irc;
 
+import com.darylteo.vertx.ircbot.irc.messages.Message;
 import org.vertx.java.core.buffer.Buffer;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -25,13 +25,6 @@ public class MessageParser {
   }
 
   public Message next() {
-    String line = tokenizer.next();
-
-    Matcher matcher = MESSAGE_PATTERN.matcher(line);
-    if (matcher.matches()) {
-      return new Message(matcher.group("command"), matcher.group("parameters"), line);
-    }
-
-    return new Message("Unknown", "", line);
+    return new Message(tokenizer.next());
   }
 }

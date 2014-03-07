@@ -3,7 +3,7 @@ package com.darylteo.vertx.ircbot.irc;
 /**
  * Created by dteo on 7/03/2014.
  */
-public enum Commands {
+public enum CommandTypes {
   RPL_WELCOME, // 001
   RPL_YOURHOST, // 002
   RPL_CREATED, // 003

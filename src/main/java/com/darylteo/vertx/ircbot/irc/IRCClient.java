@@ -1,5 +1,6 @@
 package com.darylteo.vertx.ircbot.irc;
 
+import com.darylteo.vertx.ircbot.irc.messages.Message;
 import org.vertx.java.core.net.NetSocket;
 
 import java.util.HashMap;
@@ -31,17 +32,18 @@ public class IRCClient {
   }
 
   //
-  // Commands
+  // CommandTypes
   public void ident(String nick, String real) {
     this.send("NICK", nick);
     this.send("USER", nick, "0", "*", ":" + real);
   }
 
-  public void join(String channel) {
+  public Channel join(String channel) {
     if (!channel.startsWith("#")) {
       channel = "#" + channel;
     }
-    this.send("JOIN", channel);
+
+    return new Channel(this, channel);
   }
 
   public void quit(String reason) {
