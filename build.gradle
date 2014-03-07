@@ -21,6 +21,6 @@ vertx {
 
   config {
     main 'Main'
-    autoRedeploy true
+    autoRedeploy false
   }
 }

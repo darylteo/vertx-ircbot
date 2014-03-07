@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 public class Prefix {
   public static Pattern PREFIX_PATTERN = Pattern.compile("(?<name>.+?)(!(?<user>.+?)@(?<host>.+))?");
 
+  private String prefix;
+
   private String name;
 
   private String user;
@@ -31,6 +33,8 @@ public class Prefix {
   }
 
   public Prefix(String prefix) {
+    this.prefix = prefix;
+
     Matcher matcher = PREFIX_PATTERN.matcher(prefix);
 
     if (matcher.matches()) {
@@ -40,5 +44,10 @@ public class Prefix {
     } else {
       // TODO: Exception handling
     }
+  }
+
+  @Override
+  public String toString() {
+    return this.prefix;
   }
 }

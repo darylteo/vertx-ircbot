@@ -1,7 +1,9 @@
 package com.darylteo.vertx.ircbot.irc.messages;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by dteo on 7/03/2014.
@@ -34,7 +36,7 @@ public class Message {
   public Message(String line) {
     this.line = line;
 
-    List<String> tokens = tokenize(line);
+    parse(tokenize(line));
   }
 
   private void parse(List<String> tokens) {
@@ -56,14 +58,24 @@ public class Message {
     List<String> tokens = new LinkedList<>();
 
     while (line.length() > 0) {
+      // EXIT: detect trailing parameter, break if found.
       if (line.startsWith(":") && !tokens.isEmpty()) {
         // eat everything else, final token
         tokens.add(line);
-      } else {
-        int space = line.indexOf(" ");
-        tokens.add(line.substring(0, space));
-        line = line.substring(space + 1);
+        break;
       }
+
+      // find next parameter
+      int space = line.indexOf(" ");
+
+      // EXIT: detect final parameter (without spaces)
+      if (space == -1) {
+        tokens.add(line);
+        break;
+      }
+
+      tokens.add(line.substring(0, space));
+      line = line.substring(space + 1);
     }
 
     return tokens;
@@ -71,6 +83,11 @@ public class Message {
 
   @Override
   public String toString() {
-    return "[" + this.command + "]: " + line;
+    String params = Arrays.asList(this.parameters)
+      .stream()
+      .map(p -> String.format("[%s]", p))
+      .collect(Collectors.joining());
+
+    return String.format("[%s][%s]: %s", this.prefix, this.command, params);
   }
 }

@@ -14,6 +14,7 @@ public class IRCClient {
   private MessageParser parser = new MessageParser();
 
   private Map<String, MessageHandler> handlers = new HashMap<>();
+  private Map<String, Channel> channels = new HashMap<>();
 
   public IRCClient(NetSocket socket) {
     this.socket = socket;
@@ -43,7 +44,9 @@ public class IRCClient {
       channel = "#" + channel;
     }
 
-    return new Channel(this, channel);
+    Channel result = new Channel(this, channel);
+    this.channels.put(channel, result);
+    return result;
   }
 
   public void quit(String reason) {
@@ -57,7 +60,7 @@ public class IRCClient {
   }
 
   private void handle(Message message) {
-    System.out.println(message.line());
+    System.out.println(message);
     if (this.handlers.containsKey(message.command())) {
       this.handlers.get(message.command()).handle(message);
     }
@@ -72,6 +75,6 @@ public class IRCClient {
   private void send(String message) {
     System.out.println(" -- " + message);
     this.socket.write(message);
-    this.socket.write("\n");
+    this.socket.write("\r\n");
   }
 }
