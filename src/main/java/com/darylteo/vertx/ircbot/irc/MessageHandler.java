@@ -5,5 +5,5 @@ package com.darylteo.vertx.ircbot.irc;
  */
 @FunctionalInterface
 public interface MessageHandler {
-  public void handle(String command);
+  public void handle(Message message);
 }

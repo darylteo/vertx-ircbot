@@ -17,7 +17,10 @@ public class Main extends Verticle {
         System.out.println("Succeeded in connecting to server");
 
         IRCClient server = new IRCClient(result.result());
+
         server.ident("vertxbot", "Daryl Teo");
+
+        server.join("vertxbot");
       } else {
         System.out.println("Connection to irc server failed");
       }
@@ -33,4 +36,8 @@ public class Main extends Verticle {
     super.stop();
   }
 
+  // register all responses to commands
+  private void hook(IRCClient client) {
+
+  }
 }
