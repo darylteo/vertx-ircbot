@@ -7,9 +7,12 @@ import org.vertx.java.platform.Verticle;
 public class Main extends Verticle {
   private IRCClient client;
 
+  private String nick = "vertxbot";
+  private String name = "Daryl Teo";
+
   @Override
   public void start() {
-    IRCClient client = new IRCClient(this.vertx, result -> this.joinChannels(result));
+    IRCClient client = new IRCClient(this.vertx, nick, name, result -> this.joinChannels(result));
   }
 
   @Override

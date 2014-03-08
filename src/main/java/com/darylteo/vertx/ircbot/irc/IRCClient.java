@@ -1,14 +1,14 @@
 package com.darylteo.vertx.ircbot.irc;
 
 import com.darylteo.vertx.ircbot.irc.messages.Message;
+import com.darylteo.vertx.ircbot.irc.messages.OutgoingMessage;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.net.NetClient;
 import org.vertx.java.core.net.NetSocket;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by dteo on 6/03/2014.
@@ -19,10 +19,11 @@ public class IRCClient {
 
   private Map<CommandType, MessageHandler> handlers = new HashMap<>();
   private Map<String, Channel> channels = new HashMap<>();
+  private List<OutgoingMessage> awaitingReplies = new LinkedList<OutgoingMessage>();
 
   //
   // Constructors
-  public IRCClient(Vertx vertx, Handler<IRCClient> handler) {
+  public IRCClient(Vertx vertx, String nick, String name, Handler<IRCClient> handler) {
     NetClient client = vertx.createNetClient();
 
     client.connect(8000, "irc.freenode.org", result -> {
@@ -30,7 +31,7 @@ public class IRCClient {
         System.out.println("Succeeded in connecting to server");
 
         this.init(result.result());
-        this.ident("vertxbot", "Daryl Teo");
+        this.ident(nick, name);
 
         handler.handle(this);
       } else {
@@ -97,16 +98,35 @@ public class IRCClient {
     if (this.handlers.containsKey(message.command())) {
       this.handlers.get(message.command()).handle(message);
     }
+
+    Iterator<OutgoingMessage> iter = this.awaitingReplies.iterator();
+
+    while (iter.hasNext()) {
+      OutgoingMessage awaiting = iter.next();
+
+      awaiting.handle(message);
+      if (!awaiting.isWaiting()) {
+        iter.remove();
+      }
+    }
   }
 
   //
   // Sending Methods
-  public void send(String command, String... parameters) {
-    send(String.format("%s %s", command, String.join(" ", parameters)));
+  public void send(CommandType command, String... parameters) {
+    this.send(String.format("%s %s", command.code(), String.join(" ", parameters)));
   }
 
-  public void send(CommandType command, String... parameters) {
-    send(command.code(), parameters);
+  public void send(String command, String... parameters) {
+    this.send(String.format("%s %s", command, String.join(" ", parameters)));
+  }
+
+  public void send(OutgoingMessage message) {
+    this.send(String.format("%s %s", message.command().code(), String.join(" ", message.parameters())));
+
+    if (message.isWaiting()) {
+      this.awaitingReplies.add(message);
+    }
   }
 
   private void send(String message) {
