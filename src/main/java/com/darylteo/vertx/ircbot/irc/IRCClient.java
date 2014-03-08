@@ -17,7 +17,7 @@ public class IRCClient {
   private NetSocket socket;
   private MessageParser parser = new MessageParser();
 
-  private Map<String, MessageHandler> handlers = new HashMap<>();
+  private Map<CommandType, MessageHandler> handlers = new HashMap<>();
   private Map<String, Channel> channels = new HashMap<>();
 
   //
@@ -45,8 +45,8 @@ public class IRCClient {
     this.socket = socket;
 
     // Respond to Pings
-    this.bind("PING", message ->
-      this.send("PONG", message.parameters())
+    this.bind(CommandType.PING, message ->
+      this.send(CommandType.PONG, message.parameters())
     );
 
     // pass other messages to channels/subscribers
@@ -56,8 +56,8 @@ public class IRCClient {
   //
   // CommandType
   public void ident(String nick, String real) {
-    this.send("NICK", nick);
-    this.send("USER", nick, "0", "*", ":" + real);
+    this.send(CommandType.NICK, nick);
+    this.send(CommandType.USER, nick, "0", "*", ":" + real);
   }
 
   public Channel join(String channel) {
@@ -77,7 +77,11 @@ public class IRCClient {
   //
   // Handler Methods
   public void bind(String command, MessageHandler handler) {
-    this.handlers.put(command.toUpperCase(), handler);
+    this.bind(CommandType.valueOf(command.toUpperCase()), handler);
+  }
+
+  public void bind(CommandType command, MessageHandler handler) {
+    this.handlers.put(command, handler);
   }
 
   private void handle(Buffer buffer) {
@@ -99,6 +103,10 @@ public class IRCClient {
   // Sending Methods
   public void send(String command, String... parameters) {
     send(String.format("%s %s", command, String.join(" ", parameters)));
+  }
+
+  public void send(CommandType command, String... parameters) {
+    send(command.code(), parameters);
   }
 
   private void send(String message) {

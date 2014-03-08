@@ -34,7 +34,6 @@ public class MessageParser {
     mappings.put("KILL", CommandType.KILL);
     mappings.put("LINKS", CommandType.LINKS);
     mappings.put("LIST", CommandType.LIST);
-    mappings.put("LUSERS", CommandType.LUSERS);
     mappings.put("MODE", CommandType.MODE);
     mappings.put("MOTD", CommandType.MOTD);
     mappings.put("NAMES", CommandType.NAMES);
