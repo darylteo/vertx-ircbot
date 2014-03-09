@@ -21,6 +21,10 @@ public class Message {
     return this.command;
   }
 
+  public boolean isCommand(CommandType... types) {
+    return Arrays.asList(types).contains(this.command);
+  }
+
   private String[] parameters;
 
   public String[] parameters() {

@@ -14,6 +14,10 @@ apply plugin: 'vertx'
 
 sourceCompatibility = '1.8'
 
+repositories {
+  mavenLocal()
+}
+
 vertx {
   platform {
     version '2.1RC1'
@@ -22,5 +26,7 @@ vertx {
   config {
     main 'Main'
     autoRedeploy false
+
+    includes 'com.darylteo.vertx~vertx-promises-java~1.2.0'
   }
 }

@@ -1,7 +1,6 @@
 package com.darylteo.vertx.ircbot.irc;
 
 import com.darylteo.vertx.ircbot.irc.messages.Message;
-import com.darylteo.vertx.ircbot.irc.messages.OutgoingMessage;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.buffer.Buffer;
@@ -19,7 +18,7 @@ public class IRCClient {
 
   private Map<CommandType, MessageHandler> handlers = new HashMap<>();
   private Map<String, Channel> channels = new HashMap<>();
-  private List<OutgoingMessage> awaitingReplies = new LinkedList<OutgoingMessage>();
+  private List<MessageStream> awaitingReplies = new LinkedList<>();
 
   //
   // Constructors
@@ -85,6 +84,13 @@ public class IRCClient {
     this.handlers.put(command, handler);
   }
 
+  public MessageStream stream() {
+    MessageStream stream = new MessageStream();
+    System.out.println("Adding to streams");
+    this.awaitingReplies.add(stream);
+    return stream;
+  }
+
   private void handle(Buffer buffer) {
     this.parser.append(buffer);
 
@@ -99,13 +105,15 @@ public class IRCClient {
       this.handlers.get(message.command()).handle(message);
     }
 
-    Iterator<OutgoingMessage> iter = this.awaitingReplies.iterator();
-
-    while (iter.hasNext()) {
-      OutgoingMessage awaiting = iter.next();
-
+    // prevent concurrent modification exceptions
+    for (MessageStream awaiting : new ArrayList<>(this.awaitingReplies)) {
       awaiting.handle(message);
-      if (!awaiting.isWaiting()) {
+    }
+
+    // remove any completed streams
+    Iterator<MessageStream> iter = this.awaitingReplies.iterator();
+    while (iter.hasNext()) {
+      if (!iter.next().isWaiting()) {
         iter.remove();
       }
     }
@@ -119,14 +127,6 @@ public class IRCClient {
 
   public void send(String command, String... parameters) {
     this.send(String.format("%s %s", command, String.join(" ", parameters)));
-  }
-
-  public void send(OutgoingMessage message) {
-    this.send(String.format("%s %s", message.command().code(), String.join(" ", message.parameters())));
-
-    if (message.isWaiting()) {
-      this.awaitingReplies.add(message);
-    }
   }
 
   private void send(String message) {
