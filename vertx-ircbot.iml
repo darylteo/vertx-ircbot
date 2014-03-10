@@ -20,8 +20,8 @@
     <orderEntry type="library" scope="PROVIDED" name="Gradle: netty-all-4.0.17.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: vertx-core-2.1RC1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: vertx-promises-java-1.2.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: rxjava-core-0.14.8" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: rxjava-promises-core-1.2.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: rxjava-core-0.17.0-RC7" level="project" />
   </component>
 </module>
 

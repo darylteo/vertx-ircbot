@@ -6,8 +6,13 @@ import org.vertx.java.core.Vertx;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.net.NetClient;
 import org.vertx.java.core.net.NetSocket;
+import rx.Observable;
+import rx.subjects.PublishSubject;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by dteo on 6/03/2014.
@@ -20,10 +25,17 @@ public class IRCClient {
   private Map<String, Channel> channels = new HashMap<>();
   private List<MessageStream> awaitingReplies = new LinkedList<>();
 
+  private PublishSubject<Message> subject;
+
   //
   // Constructors
   public IRCClient(Vertx vertx, String nick, String name, Handler<IRCClient> handler) {
     NetClient client = vertx.createNetClient();
+    this.subject = PublishSubject.create();
+
+    this.stream()
+      .filter(message -> message.isCommand(CommandType.PING))
+      .subscribe(message -> this.send(CommandType.PONG, message.parameters()));
 
     client.connect(8000, "irc.freenode.org", result -> {
       if (result.succeeded()) {
@@ -44,13 +56,12 @@ public class IRCClient {
   private void init(NetSocket socket) {
     this.socket = socket;
 
-    // Respond to Pings
-    this.bind(CommandType.PING, message ->
-      this.send(CommandType.PONG, message.parameters())
-    );
-
-    // pass other messages to channels/subscribers
+    // pass messages to channels/subscribers through the Subject
     socket.dataHandler(buffer -> this.handle(buffer));
+  }
+
+  public Observable<Message> stream() {
+    return this.subject;
   }
 
   //
@@ -84,13 +95,6 @@ public class IRCClient {
     this.handlers.put(command, handler);
   }
 
-  public MessageStream stream() {
-    MessageStream stream = new MessageStream();
-    System.out.println("Adding to streams");
-    this.awaitingReplies.add(stream);
-    return stream;
-  }
-
   private void handle(Buffer buffer) {
     this.parser.append(buffer);
 
@@ -100,23 +104,7 @@ public class IRCClient {
   }
 
   private void handle(Message message) {
-    System.out.println(message);
-    if (this.handlers.containsKey(message.command())) {
-      this.handlers.get(message.command()).handle(message);
-    }
-
-    // prevent concurrent modification exceptions
-    for (MessageStream awaiting : new ArrayList<>(this.awaitingReplies)) {
-      awaiting.handle(message);
-    }
-
-    // remove any completed streams
-    Iterator<MessageStream> iter = this.awaitingReplies.iterator();
-    while (iter.hasNext()) {
-      if (!iter.next().isWaiting()) {
-        iter.remove();
-      }
-    }
+    this.subject.onNext(message);
   }
 
   //
