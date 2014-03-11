@@ -18,6 +18,10 @@ repositories {
   mavenLocal()
 }
 
+dependencies {
+  compile 'com.netflix.rxjava:rxjava-core:0.17.0'
+}
+
 vertx {
   platform {
     version '2.1RC1'
@@ -27,6 +31,5 @@ vertx {
     main 'Main'
     autoRedeploy false
 
-    includes 'com.darylteo.vertx~vertx-promises-java~1.2.0'
   }
 }

@@ -19,13 +19,18 @@ public class Main extends Verticle {
   @Override
   public void start() {
     IRCClient _client = new IRCClient(this.vertx, nick, name, client -> {
-      // bind privmsg
-      //      client
-      //        .stream()
-      //        .subscribe(message -> {
-      //          // perform this on each message
-      //          System.out.println("Log: " + message);
-      //        });
+      client.stream().filter(message -> {
+        System.out.println("Filter: " + message);
+        return true;
+      });
+
+      //bind logging
+      client
+        .stream()
+        .subscribe(message -> {
+          // perform this on each message
+          System.out.println("Log: " + message);
+        });
 
       // bind privmsg
       client
@@ -33,21 +38,24 @@ public class Main extends Verticle {
         .filter(message -> message.isCommand(CommandType.PRIVMSG))
         .subscribe(message -> {
           // perform this on each message
-          System.out.println(message);
+          System.out.println("PRIVMSG: " + message);
         });
 
       // join channels
-      Observable<List<Message>> motd = this.waitForMOTD(client).first();
+      Observable<Message> motd = this.waitForMOTD(client);
 
-      Observable<Channel> channels = motd.flatMap(messages -> {
-        for (Message m : messages) {
-          System.out.println(m);
-        }
+      Observable<Channel> channels = motd
+        .toList()
+        .flatMap(messages -> {
+          for (Message m : messages) {
+            System.out.println(m);
+          }
 
-        System.out.println("MOTD Finished");
-        return this.joinChannels(client);
-      });
+          System.out.println("MOTD Finished");
+          return this.joinChannels(client);
+        });
 
+      channels.subscribe();
     });
   }
 
@@ -60,10 +68,9 @@ public class Main extends Verticle {
     super.stop();
   }
 
-  private Observable<List<Message>> waitForMOTD(IRCClient client) {
+  private Observable<Message> waitForMOTD(IRCClient client) {
     return client.stream()
-      .takeWhile(message -> !message.isCommand(CommandType.RPL_ENDOFMOTD))
-      .toList();
+      .takeWhile(message -> !message.isCommand(CommandType.RPL_ENDOFMOTD));
   }
 
   private Observable<Channel> joinChannels(IRCClient client) {

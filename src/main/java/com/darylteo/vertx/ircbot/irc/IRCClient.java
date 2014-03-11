@@ -98,12 +98,14 @@ public class IRCClient {
 
   //
   // Sending Methods
-  public void send(CommandType command, String... parameters) {
+  public IRCClient send(CommandType command, String... parameters) {
     this.send(String.format("%s %s", command.code(), String.join(" ", parameters)));
+    return this;
   }
 
-  public void send(String command, String... parameters) {
+  public IRCClient send(String command, String... parameters) {
     this.send(String.format("%s %s", command, String.join(" ", parameters)));
+    return this;
   }
 
   private void send(String message) {
