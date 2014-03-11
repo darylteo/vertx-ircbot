@@ -1,8 +1,7 @@
-package com.darylteo.vertx.ircbot.irc;
+import com.darylteo.vertx.ircbot.irc.CommandType;
+import com.darylteo.vertx.ircbot.irc.IRCClient;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by dteo on 7/03/2014.
@@ -20,15 +19,9 @@ public class Channel {
     return users;
   }
 
-  private Map<String, MessageHandler> handlers = new HashMap<>();
-
   public Channel(IRCClient client, String channel) {
     System.out.println("Joining Channel " + channel);
 
     client.send(CommandType.JOIN, channel);
-  }
-
-  public void bindAll(MessageHandler handler) {
-    this.handlers.put(null, handler);
   }
 }

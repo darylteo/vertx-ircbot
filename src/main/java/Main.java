@@ -1,11 +1,10 @@
 import com.darylteo.vertx.ircbot.irc.CommandType;
 import com.darylteo.vertx.ircbot.irc.IRCClient;
 import com.darylteo.vertx.ircbot.irc.messages.Message;
-import com.darylteo.vertx.promises.java.Promise;
-import com.darylteo.vertx.promises.java.functions.PromiseAction;
 import org.vertx.java.platform.Verticle;
 import rx.Observable;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -21,12 +20,12 @@ public class Main extends Verticle {
   public void start() {
     IRCClient _client = new IRCClient(this.vertx, nick, name, client -> {
       // bind privmsg
-      client
-        .stream()
-        .subscribe(message -> {
-          // perform this on each message
-          System.out.println("Log: " + message);
-        });
+      //      client
+      //        .stream()
+      //        .subscribe(message -> {
+      //          // perform this on each message
+      //          System.out.println("Log: " + message);
+      //        });
 
       // bind privmsg
       client
@@ -38,10 +37,17 @@ public class Main extends Verticle {
         });
 
       // join channels
-      this.waitForMOTD(client).subscribe(messages -> {
+      Observable<List<Message>> motd = this.waitForMOTD(client).first();
+
+      Observable<Channel> channels = motd.flatMap(messages -> {
+        for (Message m : messages) {
+          System.out.println(m);
+        }
+
         System.out.println("MOTD Finished");
-        this.joinChannel(client, "#vertxbot");
+        return this.joinChannels(client);
       });
+
     });
   }
 
@@ -60,27 +66,12 @@ public class Main extends Verticle {
       .toList();
   }
 
-  private Promise<Void> joinChannels(IRCClient client) {
-    return this
-      .joinChannel(client, "#vertxbot")
-      .then((PromiseAction<List<Message>>) messages -> {
-        for (Message m : messages) {
-          System.out.println("User in room" + m);
-        }
-      });
-  }
+  private Observable<Channel> joinChannels(IRCClient client) {
+    List<Channel> channels = new LinkedList<>();
 
-  private Promise<List<Message>> joinChannel(IRCClient client, String channel) {
-    Promise<List<Message>> promise = new Promise<>();
+    channels.add(new Channel(client, "#vertxbot"));
 
-    client.join(channel);
-    client.stream()
-      .takeWhile(message -> !message.isCommand(CommandType.RPL_ENDOFNAMES))
-      .filter(message -> message.isCommand(CommandType.RPL_NAMREPLY))
-      .toList()
-      .subscribe(promise);
-
-    return promise;
+    return Observable.from(channels);
   }
 
 }

@@ -22,7 +22,6 @@ public class IRCClient {
   private MessageParser parser = new MessageParser();
 
   private Map<CommandType, MessageHandler> handlers = new HashMap<>();
-  private Map<String, Channel> channels = new HashMap<>();
   private List<MessageStream> awaitingReplies = new LinkedList<>();
 
   private PublishSubject<Message> subject;
@@ -69,16 +68,6 @@ public class IRCClient {
   public void ident(String nick, String real) {
     this.send(CommandType.NICK, nick);
     this.send(CommandType.USER, nick, "0", "*", ":" + real);
-  }
-
-  public Channel join(String channel) {
-    if (!channel.startsWith("#")) {
-      channel = "#" + channel;
-    }
-
-    Channel result = new Channel(this, channel);
-    this.channels.put(channel, result);
-    return result;
   }
 
   public void quit(String reason) {
