@@ -31,6 +31,10 @@ public class Message {
     return this.parameters;
   }
 
+  public String parameters(int index) {
+    return this.parameters[index];
+  }
+
   public Message(Prefix prefix, CommandType command, String[] parameters) {
     this.prefix = prefix;
     this.command = command;

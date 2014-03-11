@@ -1,6 +1,7 @@
 import com.darylteo.vertx.ircbot.irc.CommandType;
 import com.darylteo.vertx.ircbot.irc.IRCClient;
-import rx.Subscription;
+import com.darylteo.vertx.ircbot.irc.messages.Message;
+import rx.Observable;
 
 import java.util.List;
 
@@ -22,9 +23,14 @@ public class Channel {
 
   private IRCClient client;
 
+  private Observable<Message> stream;
+
   public Channel(IRCClient client, String channel) {
     this.client = client;
     this.channel = channel;
+
+    this.stream = client.stream()
+      .filter(message -> privmsg(message));
 
     // trigger join
     client.send(CommandType.JOIN, channel);
@@ -34,16 +40,25 @@ public class Channel {
 
   private void refreshUsers() {
     // subscribe
-    Subscription subscribe = this.client
+    this.client
       .send(CommandType.WHO, this.channel)
       .stream()
       .takeWhile(message -> !message.isCommand(CommandType.RPL_ENDOFWHO))
-      .filter(message -> message.isCommand(CommandType.RPL_WHOREPLY))
-      .map(message -> message.toString())
+      .filter(message -> whoreply(message))
+      .map(message -> message.parameters(2))
       .toList()
       .subscribe(users -> {
         System.out.println("Users Get: " + users);
         this.users = users;
       });
+  }
+
+  // filters
+  private boolean privmsg(Message message) {
+    return message.isCommand(CommandType.PRIVMSG) && message.parameters(0).equals(this.channel);
+  }
+
+  private boolean whoreply(Message message) {
+    return message.isCommand(CommandType.RPL_WHOREPLY) && message.parameters(1).equals(this.channel);
   }
 }
