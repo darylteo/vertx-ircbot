@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
  * Created by dteo on 7/03/2014.
  */
 public class Message {
-  private Prefix prefix;
+  private String prefix;
 
-  public Prefix getPrefix() {
+  public String getPrefix() {
     return prefix;
   }
 
@@ -35,7 +35,7 @@ public class Message {
     return this.parameters[index];
   }
 
-  public Message(Prefix prefix, CommandType command, String[] parameters) {
+  public Message(String prefix, CommandType command, String[] parameters) {
     this.prefix = prefix;
     this.command = command;
     this.parameters = parameters == null ? new String[0] : parameters;

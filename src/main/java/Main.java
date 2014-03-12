@@ -32,14 +32,6 @@ public class Main extends Verticle {
           System.out.println("Log: " + message);
         });
 
-      // bind privmsg
-      client
-        .stream()
-        .filter(message -> message.isCommand(CommandType.PRIVMSG))
-        .subscribe(message -> {
-          // perform this on each message
-          System.out.println("PRIVMSG: " + message);
-        });
 
       // join channels
       Observable<Message> motd = this.waitForMOTD(client);
@@ -76,7 +68,7 @@ public class Main extends Verticle {
   private Observable<Channel> joinChannels(IRCClient client) {
     List<Channel> channels = new LinkedList<>();
 
-    channels.add(new Channel(client, "#vertxbot"));
+    channels.add(new Channel(client, "vertxbot", "#vertxbot"));
 
     return Observable.from(channels);
   }
