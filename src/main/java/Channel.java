@@ -6,6 +6,8 @@ import com.darylteo.vertx.ircbot.irc.messages.types.PrivMsg;
 import rx.Observable;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by dteo on 7/03/2014.
@@ -18,6 +20,9 @@ public class Channel {
 
   private List<User> users;
   private Observable<Message> stream;
+
+  private Pattern commandPrefix = null;
+  private Pattern whitespace = Pattern.compile("\\s+");
 
   public String getChannel() {
     return channel;
@@ -32,15 +37,17 @@ public class Channel {
     this.nick = nick;
     this.channel = channel;
 
+    try {
+      this.commandPrefix = Pattern.compile(String.format("^\\s*\\!(?<command>.+)$", this.nick));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
     this.stream = client.stream()
       .filter(message -> accept(message));
 
     // privmsgs
-    this.stream
-      .filter(message -> message.isCommand(CommandType.PRIVMSG))
-      .cast(PrivMsg.class)
-      .filter(message -> message.getRecipient().equals(this.channel))
-      .subscribe(message -> handlePrivmsg(message));
+    subscribePrivmsg(this.stream);
 
     // trigger join
     client.send(CommandType.JOIN, channel);
@@ -56,15 +63,25 @@ public class Channel {
       .takeWhile(message -> !message.isCommand(CommandType.RPL_ENDOFWHO))
       .filter(message -> whoreply(message))
       .map(message -> new User(
-        message.parameters(3), // username
-        message.parameters(6), // nick
-        message.parameters(4)) // host
+        message.parameters(2), // username
+        message.parameters(5), // nick
+        message.parameters(3)) // host
       )
       .toSortedList()
       .subscribe(users -> {
         System.out.println("Users Get: " + users);
         this.users = users;
       });
+  }
+
+  private void subscribePrivmsg(Observable<Message> stream) {
+    stream
+      .filter(message -> message.isCommand(CommandType.PRIVMSG))
+      .cast(PrivMsg.class)
+      .filter(message -> {
+        return message.getRecipient().equals(this.channel);
+      })
+      .subscribe(message -> handlePrivmsg(message));
   }
 
   private void handlePrivmsg(PrivMsg message) {
@@ -74,9 +91,10 @@ public class Channel {
         " in channel " + this.channel +
         ": " + message.getMessage());
 
-    String text = message.getMessage();
-    if (text.trim().startsWith(this.nick)) {
-      this.client.send(CommandType.PRIVMSG, this.channel, ":Hello " + message.getSender());
+    Matcher matcher = this.commandPrefix.matcher(message.getMessage());
+    if (matcher.matches()) {
+      String[] commands = whitespace.split(matcher.group("command"));
+      System.out.println("Command Received: " + commands);
     }
   }
 
