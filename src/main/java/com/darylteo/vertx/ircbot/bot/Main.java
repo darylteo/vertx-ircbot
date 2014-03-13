@@ -1,6 +1,7 @@
 package com.darylteo.vertx.ircbot.bot;
 
 import com.darylteo.vertx.ircbot.bot.channels.Channel;
+import com.darylteo.vertx.ircbot.bot.plugins.CommandListPlugin;
 import com.darylteo.vertx.ircbot.irc.CommandType;
 import com.darylteo.vertx.ircbot.irc.IRCClient;
 import com.darylteo.vertx.ircbot.irc.messages.Message;
@@ -22,33 +23,12 @@ public class Main extends Verticle {
   @Override
   public void start() {
     IRCClient _client = new IRCClient(this.vertx, nick, name, client -> {
-      client.stream().filter(message -> {
-        System.out.println("Filter: " + message);
-        return true;
-      });
-
-      //bind logging
-      client
-        .stream()
-        .subscribe(message -> {
-          // perform this on each message
-          System.out.println("Log: " + message);
-        });
-
-
       // join channels
       Observable<Message> motd = this.waitForMOTD(client);
 
       Observable<Channel> channels = motd
         .toList()
-        .flatMap(messages -> {
-          for (Message m : messages) {
-            System.out.println(m);
-          }
-
-          System.out.println("MOTD Finished");
-          return this.joinChannels(client);
-        });
+        .flatMap(messages -> this.joinChannels(client));
 
       channels.subscribe();
     });
@@ -71,7 +51,10 @@ public class Main extends Verticle {
   private Observable<Channel> joinChannels(IRCClient client) {
     List<Channel> channels = new LinkedList<>();
 
-    channels.add(new Channel(client, "vertxbot", "#vertxbot"));
+    Channel channel = new Channel(client, "vertxbot", "#vertxbot");
+    channel.registerPlugin(new CommandListPlugin());
+
+    channels.add(channel);
 
     return Observable.from(channels);
   }

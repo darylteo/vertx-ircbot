@@ -1,5 +1,6 @@
 package com.darylteo.vertx.ircbot.bot.channels;
 
+import com.darylteo.vertx.ircbot.bot.plugins.Plugin;
 import com.darylteo.vertx.ircbot.irc.CommandType;
 import com.darylteo.vertx.ircbot.irc.IRCClient;
 import com.darylteo.vertx.ircbot.irc.messages.Message;
@@ -21,18 +22,12 @@ public class Channel {
   private String nick;
 
   private List<User> users;
+
   private Observable<Message> stream;
+  private Observable<Command> commands;
 
   private Pattern commandPrefix = null;
   private Pattern whitespace = Pattern.compile("\\s+");
-
-  public String getChannel() {
-    return channel;
-  }
-
-  public List<User> getUsers() {
-    return users;
-  }
 
   public Channel(IRCClient client, String nick, String channel) {
     this.client = client;
@@ -49,7 +44,7 @@ public class Channel {
       .filter(message -> accept(message));
 
     // privmsgs
-    subscribePrivmsg(this.stream);
+    this.commands = subscribeCommands(this.stream);
 
     // trigger join
     client.send(CommandType.JOIN, channel);
@@ -57,8 +52,22 @@ public class Channel {
     refreshUsers();
   }
 
+  public String getChannel() {
+    return channel;
+  }
+
+  public List<User> getUsers() {
+    return users;
+  }
+
   public void registerPlugin(Plugin plugin) {
-    this.stream.subscribe(plugin);
+    this.commands
+      .filter(command -> plugin.respondsTo(command))
+      .subscribe(command -> plugin.handle(this, command));
+  }
+
+  public void send(String message) {
+    this.client.send(CommandType.PRIVMSG, this.channel, ":" + message);
   }
 
   private void refreshUsers() {
@@ -80,28 +89,24 @@ public class Channel {
       });
   }
 
-  private void subscribePrivmsg(Observable<Message> stream) {
-    stream
+  private Observable<Command> subscribeCommands(Observable<Message> stream) {
+    return stream
       .filter(message -> message.isCommand(CommandType.PRIVMSG))
       .cast(PrivMsg.class)
-      .filter(message -> {
-        return message.getRecipient().equals(this.channel);
+      .map(message -> {
+        if (!message.getRecipient().equals(this.channel)) {
+          return null;
+        }
+
+        Matcher matcher = this.commandPrefix.matcher(message.getMessage());
+        if (!matcher.matches()) {
+          return null;
+        }
+
+        String[] parts = whitespace.split(matcher.group("command"));
+        return new Command(parts, message.getSender());
       })
-      .subscribe(message -> handlePrivmsg(message));
-  }
-
-  private void handlePrivmsg(PrivMsg message) {
-    System.out.println(
-      "Message to " + message.getRecipient() +
-        " from " + message.getSender() +
-        " in channel " + this.channel +
-        ": " + message.getMessage());
-
-    Matcher matcher = this.commandPrefix.matcher(message.getMessage());
-    if (matcher.matches()) {
-      String[] commands = whitespace.split(matcher.group("command"));
-      System.out.println("Command Received: " + commands);
-    }
+      .filter(command -> command != null);
   }
 
   // filters

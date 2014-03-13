@@ -93,6 +93,7 @@ public class IRCClient {
   }
 
   private void handle(Message message) {
+    System.out.println("<-- :" + message);
     this.subject.onNext(message);
   }
 
@@ -109,7 +110,7 @@ public class IRCClient {
   }
 
   private void send(String message) {
-    System.out.println(" -- " + message);
+    System.out.println("--> : " + message);
     this.socket.write(message);
     this.socket.write("\r\n");
   }
