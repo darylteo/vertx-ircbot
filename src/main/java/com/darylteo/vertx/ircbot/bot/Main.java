@@ -1,3 +1,6 @@
+package com.darylteo.vertx.ircbot.bot;
+
+import com.darylteo.vertx.ircbot.bot.channels.Channel;
 import com.darylteo.vertx.ircbot.irc.CommandType;
 import com.darylteo.vertx.ircbot.irc.IRCClient;
 import com.darylteo.vertx.ircbot.irc.messages.Message;

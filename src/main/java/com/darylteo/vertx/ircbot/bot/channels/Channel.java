@@ -1,3 +1,5 @@
+package com.darylteo.vertx.ircbot.bot.channels;
+
 import com.darylteo.vertx.ircbot.irc.CommandType;
 import com.darylteo.vertx.ircbot.irc.IRCClient;
 import com.darylteo.vertx.ircbot.irc.messages.Message;
@@ -53,6 +55,10 @@ public class Channel {
     client.send(CommandType.JOIN, channel);
 
     refreshUsers();
+  }
+
+  public void registerPlugin(Plugin plugin) {
+    this.stream.subscribe(plugin);
   }
 
   private void refreshUsers() {

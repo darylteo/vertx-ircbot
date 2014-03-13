@@ -28,8 +28,7 @@ vertx {
   }
 
   config {
-    main 'Main'
+    main 'com.darylteo.vertx.ircbot.bot.Main'
     autoRedeploy false
-
   }
 }
