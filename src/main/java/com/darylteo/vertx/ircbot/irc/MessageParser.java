@@ -1,7 +1,7 @@
 package com.darylteo.vertx.ircbot.irc;
 
 import com.darylteo.vertx.ircbot.irc.messages.Message;
-import com.darylteo.vertx.ircbot.irc.messages.types.PrivMsg;
+import com.darylteo.vertx.ircbot.irc.messages.incoming.PrivMsg;
 import org.vertx.java.core.buffer.Buffer;
 
 import java.util.HashMap;
@@ -18,13 +18,8 @@ public class MessageParser {
 
   private final BufferTokenizer tokenizer = new BufferTokenizer();
 
-  @FunctionalInterface
-  private interface CommandToMessageFunction<T extends Message> {
-    T apply(String prefix, String[] args);
-  }
-
   public MessageParser() {
-    // basic types
+    // basic incoming
     codes.put("ADMIN", CommandType.ADMIN);
     codes.put("AWAY", CommandType.AWAY);
     codes.put("CONNECT", CommandType.CONNECT);
@@ -280,5 +275,10 @@ public class MessageParser {
     }
 
     return tokens;
+  }
+
+  @FunctionalInterface
+  private interface CommandToMessageFunction<T extends Message> {
+    T apply(String prefix, String[] args);
   }
 }

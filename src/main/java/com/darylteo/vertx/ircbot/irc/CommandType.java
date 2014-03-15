@@ -8,7 +8,7 @@ public enum CommandType {
   // misc
   _UNKNOWN("\0", "_UNKNOWN"),
 
-  // basic command types
+  // basic command incoming
   ADMIN("ADMIN", "ADMIN"),
   AWAY("AWAY", "AWAY"),
   CONNECT("CONNECT", "CONNECT"),
@@ -55,7 +55,7 @@ public enum CommandType {
   WHOIS("WHOIS", "WHOIS"),
   WHOWAS("WHOWAS", "WHOWAS"),
 
-  // numeric command types
+  // numeric command incoming
   RPL_WELCOME("001", "RPL_WELCOME"),
   RPL_YOURHOST("002", "RPL_YOURHOST"),
   RPL_CREATED("003", "RPL_CREATED"),

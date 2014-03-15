@@ -1,6 +1,7 @@
 package com.darylteo.vertx.ircbot.irc;
 
 import com.darylteo.vertx.ircbot.irc.messages.Message;
+import com.darylteo.vertx.ircbot.irc.messages.OutgoingMessage;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.buffer.Buffer;
@@ -106,6 +107,11 @@ public class IRCClient {
 
   public IRCClient send(String command, String... parameters) {
     this.send(String.format("%s %s", command, String.join(" ", parameters)));
+    return this;
+  }
+
+  public IRCClient send(OutgoingMessage message) {
+    this.send(String.format("%s %s", message.command(), String.join(" ", message.parameters())));
     return this;
   }
 

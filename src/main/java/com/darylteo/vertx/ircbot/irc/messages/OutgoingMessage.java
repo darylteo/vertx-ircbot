@@ -3,6 +3,7 @@ package com.darylteo.vertx.ircbot.irc.messages;
 import com.darylteo.vertx.ircbot.irc.CommandType;
 import org.vertx.java.core.Handler;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -19,6 +20,15 @@ public class OutgoingMessage {
   private List<Message> replies = new LinkedList<>();
   private Handler<List<Message>> handler;
 
+  public OutgoingMessage(CommandType command, boolean escapeLastParameter, String... parameters) {
+    this.command = command;
+    this.parameters = Arrays.copyOf(parameters, parameters.length);
+
+    if (escapeLastParameter && this.parameters.length > 0) {
+      this.parameters[this.parameters.length - 1] = ":" + this.parameters[this.parameters.length - 1];
+    }
+  }
+
   public CommandType command() {
     return command;
   }
@@ -27,31 +37,4 @@ public class OutgoingMessage {
     return parameters;
   }
 
-  public OutgoingMessage listensTo(Predicate<Message> predicate) {
-    this.predicate = predicate;
-    return this;
-  }
-
-  public OutgoingMessage whenReplyReceived(Handler<List<Message>> messageHandler) {
-    // TODO: Warn if adding reply handler without any predicate
-    this.handler = messageHandler;
-    return this;
-  }
-
-  public boolean isWaiting() {
-    return this.predicate != null;
-  }
-
-  public OutgoingMessage(CommandType command, String... parameters) {
-    this.command = command;
-    this.parameters = parameters;
-  }
-
-  public void handle(Message message) {
-    if (!isWaiting()) {
-      return;
-    }
-
-    this.predicate.test(message);
-  }
 }

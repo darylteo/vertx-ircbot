@@ -2,6 +2,7 @@ package com.darylteo.vertx.ircbot.bot.plugins;
 
 import com.darylteo.vertx.ircbot.bot.channels.Channel;
 import com.darylteo.vertx.ircbot.bot.channels.Command;
+import com.darylteo.vertx.ircbot.irc.IRCClient;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,5 +23,5 @@ public abstract class Plugin {
     return accepts.contains(command.getKeyword().toLowerCase());
   }
 
-  public abstract void handle(Channel channel, Command command);
+  public abstract void handle(IRCClient client, Command command);
 }

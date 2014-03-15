@@ -5,7 +5,7 @@ import com.darylteo.vertx.ircbot.irc.CommandType;
 import com.darylteo.vertx.ircbot.irc.IRCClient;
 import com.darylteo.vertx.ircbot.irc.messages.Message;
 import com.darylteo.vertx.ircbot.irc.messages.User;
-import com.darylteo.vertx.ircbot.irc.messages.types.PrivMsg;
+import com.darylteo.vertx.ircbot.irc.messages.incoming.PrivMsg;
 import rx.Observable;
 
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 public class Channel {
   private IRCClient client;
 
-  private String channel;
+  private String channelName;
   private String nick;
 
   private List<User> users;
@@ -29,10 +29,10 @@ public class Channel {
   private Pattern commandPrefix = null;
   private Pattern whitespace = Pattern.compile("\\s+");
 
-  public Channel(IRCClient client, String nick, String channel) {
+  public Channel(IRCClient client, String nick, String channelName) {
     this.client = client;
     this.nick = nick;
-    this.channel = channel;
+    this.channelName = channelName;
 
     try {
       this.commandPrefix = Pattern.compile(String.format("^\\s*\\!(?<command>.+)$", this.nick));
@@ -47,13 +47,13 @@ public class Channel {
     this.commands = subscribeCommands(this.stream);
 
     // trigger join
-    client.send(CommandType.JOIN, channel);
+    client.send(CommandType.JOIN, channelName);
 
     refreshUsers();
   }
 
-  public String getChannel() {
-    return channel;
+  public String getChannelName() {
+    return channelName;
   }
 
   public List<User> getUsers() {
@@ -63,17 +63,17 @@ public class Channel {
   public void registerPlugin(Plugin plugin) {
     this.commands
       .filter(command -> plugin.respondsTo(command))
-      .subscribe(command -> plugin.handle(this, command));
+      .subscribe(command -> plugin.handle(this.client, command));
   }
 
   public void send(String message) {
-    this.client.send(CommandType.PRIVMSG, this.channel, ":" + message);
+    this.client.send(CommandType.PRIVMSG, this.channelName, ":" + message);
   }
 
   private void refreshUsers() {
     // subscribe
     this.client
-      .send(CommandType.WHO, this.channel)
+      .send(CommandType.WHO, this.channelName)
       .stream()
       .takeWhile(message -> !message.isCommand(CommandType.RPL_ENDOFWHO))
       .filter(message -> whoreply(message))
@@ -94,7 +94,7 @@ public class Channel {
       .filter(message -> message.isCommand(CommandType.PRIVMSG))
       .cast(PrivMsg.class)
       .map(message -> {
-        if (!message.getRecipient().equals(this.channel)) {
+        if (!message.getRecipient().equals(this.channelName)) {
           return null;
         }
 
@@ -104,7 +104,7 @@ public class Channel {
         }
 
         String[] parts = whitespace.split(matcher.group("command"));
-        return new Command(parts, message.getSender());
+        return new Command(parts, this, message.getSender());
       })
       .filter(command -> command != null);
   }
@@ -123,6 +123,6 @@ public class Channel {
   }
 
   private boolean whoreply(Message message) {
-    return message.isCommand(CommandType.RPL_WHOREPLY) && message.parameters(1).equals(this.channel);
+    return message.isCommand(CommandType.RPL_WHOREPLY) && message.parameters(1).equals(this.channelName);
   }
 }
